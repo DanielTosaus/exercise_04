@@ -49,13 +49,11 @@ hirschberg_template <- function(seq1, seq2, align, match, mismatch, gap){
         
         left_score <- NWScore(seq1[1:x_mid], seq2)# NW score for the first half of seq1 and the whole seq2
         right_score <-NWScore(reverse(seq1[(x_mid+1):x_len]), reverse(seq2)) # NW score for the second half of seq1 and the whole seq2 (both are reversed)
-        print(right_score)
-        print(right_score)
         sum <- left_score + rev(right_score)
         y_mid <- which.max(sum)-1  # index of division for seq2
-        print(y_mid)
+        
         # The first half
-        if(ymid==0) # index of division for seq2 is equal to 0
+        if(y_mid==0) # index of division for seq2 is equal to 0
         {
             align <- hirschberg_template(seq1[1:x_mid], DNAString(""), align, match, mismatch, gap)# call hirschberg function for the first half of seq1 and for an empty DNAString object
         }
@@ -81,21 +79,25 @@ hirschberg_template <- function(seq1, seq2, align, match, mismatch, gap){
     return(align)
 }
 
-NWScore <- function(X,Y){
+NWScore <- function(seq1,seq2){
   gap = -2
   match = 2
   mismatch = -1
+  X <- seq1
+  Y <- seq2
   S <- matrix(nrow=length(X)+1, ncol=length(Y)+1)
   S[1,1] <- 0
   
-  for(j in (2:length(Y))){
+  for(j in (2:(length(Y)+1))){
     S[1,j] <- gap*(j-1)
   }
-  
-  for(i in (2:length(X))){
+  for(i in (2:(length(X)+1))){
     S[i,1] <- gap*(i-1)
-    for(j in (2:length(Y))){
-      if(X[i]==Y[j]){
+  }
+  for(i in (2:(length(X)+1))){
+    for(j in (2:(length(Y)+1))){
+      
+      if(X[i-1]==Y[j-1]){
         scoreSub = S[i-1, j - 1] + match
       }
       else{
@@ -104,14 +106,14 @@ NWScore <- function(X,Y){
       
       scoreDel = S[i-1, j] + gap
       scoreIns = S[i, j - 1] + gap
-      S[1, j] = max(scoreSub, scoreDel, scoreIns)
+      S[i, j] = max(scoreSub, scoreDel, scoreIns)
     }
   }
-  LastLine <- c(1:length(Y))
-  for(j in (1:length(Y))){
-    LastLine[j] = S[1, j]
+  LastLine <- c(1:(length(Y)+1))
+  for(j in (1:(length(Y)+1))){
+    LastLine[j] = S[(length(X)+1),j]
   }
-  LastLine
+  return(LastLine)
 }
 seq1 <- DNAString("AGTACGCA")
 seq2 <- DNAString("TATGC")
@@ -119,40 +121,6 @@ match <- 2
 mismatch <- -1
 gap <- -2
 
-hirschberg_template(seq1, seq2, c(), match, mismatch, gap)
+final<- hirschberg_template(seq1, seq2, c(), match, mismatch, gap)
 
 
-
-
-
-X <- seq2
-Y <- seq1
-S <- matrix(nrow=length(X)+1, ncol=length(Y)+1)
-S[1,1] <- 0
-
-for(j in (2:(length(Y)+1))){
-  S[1,j] <- gap*(j-1)
-}
-for(i in (2:(length(X)+1))){
-  S[i,1] <- gap*(i-1)
-}
-for(i in (2:length(X))){
-  
-  for(j in (2:length(Y))){
-    if(X[i]==Y[j]){
-      scoreSub = S[i-1, j - 1] + match
-    }
-    else{
-      scoreSub = S[i-1, j - 1] + mismatch
-    }
-    
-    scoreDel = S[i-1, j] + gap
-    scoreIns = S[i, j - 1] + gap
-    S[i, j] = max(scoreSub, scoreDel, scoreIns)
-  }
-}
-LastLine <- c(1:length(Y))
-for(j in (1:length(Y))){
-  LastLine[j] = S[1, j]
-}
-  
