@@ -33,7 +33,7 @@ hirschberg <- function(seq1, seq2, align, match, mismatch, gap){
         align <- c(DNAStringSet(first_align_row), DNAStringSet(second_align_row))
         print(align)
     }
-    else if(length(seq1)==1 & length(seq2)==1) # length of seq1 and seq2 is equal to 1
+    else if(length(seq1)==1 || length(seq2)==1) # length of seq1 and seq2 is equal to 1
     {
         first_align_row <- seq1[1]# add character from seq1
         second_align_row <- seq2[1]# add character from seq2
